@@ -1,0 +1,26 @@
+{
+  "name": "rdb",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "eslint": "./node_modules/.bin/eslint .",
+    "create:mig": "node_modules/.bin/sequelize migration:generate --name",
+    "deploy:dev": "export NODE_ENV=development && node_modules/.bin/sequelize db:migrate",
+    "undo:dev": "export NODE_ENV=development && node_modules/.bin/sequelize db:migrate:undo",
+    "undo:dev:all": "export NODE_ENV=development && node_modules/.bin/sequelize db:migrate:undo:all"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "mysql2": "^1.7.0",
+    "sequelize": "^5.19.4",
+    "sequelize-cli": "^5.5.1"
+  },
+  "devDependencies": {
+    "eslint": "^6.5.1",
+    "eslint-config-airbnb-base": "^14.0.0",
+    "eslint-plugin-import": "^2.18.2"
+  }
+}
