@@ -1,0 +1,54 @@
+{
+	"info": {
+		"_postman_id": "ebe3dfda-2246-436f-8651-8d23e5cf15f7",
+		"name": "Competition-management",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Server heath check",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "368a979e-691f-4e1d-b967-cb3662241a54",
+						"exec": [
+							"pm.environment.set(\"api\", \"http://localhost:8081\");"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"id": "dd79665b-8563-445a-9352-b5ad1cf4ee79",
+						"exec": [
+							"pm.test(\"response is 200 ok\", () => {",
+							"    pm.response.to.have.status(200); ",
+							"});",
+							"",
+							"pm.test(\"response should be 'Welcome to Competition Management API Server!'\", function () {",
+							"    pm.expect(pm.response.text()).to.eql('Welcome to Competition Management API Server!');",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{api}}/",
+					"host": [
+						"{{api}}"
+					],
+					"path": [
+						""
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
