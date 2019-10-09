@@ -7,7 +7,9 @@
     "doc": "docs"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "jest",
+    "eslint": "./node_modules/.bin/eslint .",
+    "dev": "(export NODE_ENV=development && export LOG_LEVEL=debug && nodemon app.js)"
   },
   "repository": {
     "type": "git",
@@ -18,5 +20,14 @@
   "bugs": {
     "url": "https://github.com/MincheolC/competition-management/issues"
   },
-  "homepage": "https://github.com/MincheolC/competition-management#readme"
+  "homepage": "https://github.com/MincheolC/competition-management#readme",
+  "devDependencies": {
+    "eslint": "^6.5.1",
+    "eslint-config-airbnb-base": "^14.0.0",
+    "eslint-plugin-import": "^2.18.2",
+    "jest": "^24.9.0"
+  },
+  "dependencies": {
+    "express": "^4.17.1"
+  }
 }
