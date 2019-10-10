@@ -49,8 +49,21 @@ function selectRecord(memberId, round, callback) {
     paramQueryOne(queryObject, callback);
 }
 
+function selectAllRecordsOfTeam(teamId, callback) {
+    assertNumber(teamId, 'teamId');
+
+    const queryObject = queryBuilder.select()
+        .from('member', 'm')
+        .join('record', 'r', 'm.id = r.memberId')
+        .where('m.teamId = ?', teamId)
+        .field('r.*');
+
+    paramQuery(queryObject, callback);
+}
+
 module.exports = {
     insertRecord,
-    selectRecord,
     updateRecord,
+    selectRecord,
+    selectAllRecordsOfTeam,
 };

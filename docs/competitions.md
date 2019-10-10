@@ -42,13 +42,13 @@ Retrieved result object on success, or error on failure.
   "competitionId": "1",
   "teamScores" : [
     {
-      "teamId": "a1b2c3c4",
+      "teamId": "1",
       "teamName": "FIFL",
       "score": 500,
       "grade": 1,
     },
     {
-      "teamId": "a1b2c3c5",
+      "teamId": "2",
       "teamName": "FIFL2",
       "score": 450,
       "grade": 2,

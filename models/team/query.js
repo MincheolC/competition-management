@@ -34,6 +34,15 @@ function selectTeam(competitionId, name, callback) {
     paramQueryOne(queryObject, callback);
 }
 
+function selectAllTeam(competitionId, callback) {
+    assertNumber(competitionId, 'competitionId');
+
+    const queryObject = queryBuilder.select()
+        .from('team');
+
+    paramQuery(queryObject, callback);
+}
+
 function selectMembers(teamId, callback) {
     assertNumber(teamId, 'teamId');
 
@@ -58,6 +67,7 @@ function selectTeamAndMember(teamId, memberId, callback) {
 
 module.exports = {
     selectTeam,
+    selectAllTeam,
     selectMembers,
     selectTeamAndMember,
     insertTeam,

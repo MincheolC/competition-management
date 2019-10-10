@@ -53,3 +53,13 @@ describe('selectRecord', () => {
         });
     });
 });
+
+describe('selectAllRecordsOfTeam', () => {
+    it('with all props', () => {
+        const teamId = 1;
+        query.selectAllRecordsOfTeam(teamId, (error, [{ text, values }]) => {
+            expect(text).toBe('SELECT r.* FROM member `m` INNER JOIN record `r` ON (m.id = r.memberId) WHERE (m.teamId = ?)');
+            expect(values).toEqual([1]);
+        });
+    });
+});

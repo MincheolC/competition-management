@@ -12,7 +12,6 @@ module.exports = {
             },
             competitionId: {
                 type: Sequelize.INTEGER,
-                unique: true,
                 allowNull: false,
             },
             name: {

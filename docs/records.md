@@ -56,7 +56,7 @@ Created record object on success, or error on failure.
 ``` json
 {
   "competitionId": "1",
-  "teamId": "1a2b3c4d",
+  "teamId": "1",
   "memberId": "1",
   "round": 1,
   "runningTime": 1110,
@@ -107,7 +107,7 @@ Updated record object on success, or error on failure.
 ``` json
 {
   "competitionId": "1",
-  "teamId": "1a2b3c4d",
+  "teamId": "1",
   "memberId": "1",
   "round": 1,
   "runningTime": 1110,
