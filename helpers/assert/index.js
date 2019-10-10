@@ -61,19 +61,14 @@ function assertNonEmptyString(value, paramName) {
     assertString(value, paramName);
 }
 
-function assertArray(value, paramName, leastCount) {
+function assertArray(value, paramName) {
     const errorMessage = paramName || 'Assert failed: not an array type';
     assert(Array.isArray(value), errorMessage);
-
-    if (leastCount != null) {
-        assert(value.length >= leastCount,
-            paramName || `Assert failed: less than ${leastCount} items found`);
-    }
 }
 
-function assertArrayOrNull(value, paramName, leastCount) {
+function assertArrayOrNull(value, paramName) {
     if (value != null) {
-        assertArray(value, paramName, leastCount);
+        assertArray(value, paramName);
     }
 }
 

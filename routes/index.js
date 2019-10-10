@@ -1,4 +1,5 @@
 const express = require('express');
+const { createTeam } = require('../controllers/teams');
 
 const router = express.Router();
 
@@ -10,9 +11,7 @@ router.get('/competitions/:competitionId/result', (req, res) => {
     res.send({});
 });
 
-router.post('/competitions/:competitionId/teams', (req, res) => {
-    res.send({});
-});
+router.post('/competitions/:competitionId/teams', createTeam);
 
 router.post('/competitions/:competitionId/teams/:teamId/record', (req, res) => {
     res.send({});
