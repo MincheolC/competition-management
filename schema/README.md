@@ -27,7 +27,7 @@ $ cd schema/rdb
 $ npm install
 ```
 
-# Creation
+# Migration
 #### Create Migration
 ```
 $ npm run create:mig [migration_name]
@@ -43,6 +43,18 @@ npm run deploy:dev
 ```
 npm run undo:dev
 npm run undo:dev:all
+```
+#### Create Seed
+(**주의**) Seed는 해당 Table에 데이터가 없어야 정상적으로 들어감.
+```
+$ npm run create:seed [seed_name]
+
+(example)
+$ npm run create:seed "member"
+```
+#### Deploy Seed
+```
+npm run deploy:dev:seed
 ```
 # Schema
 [DB diagram](https://dbdiagram.io/d/5d9c0217ff5115114db50219)

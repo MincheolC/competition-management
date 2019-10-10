@@ -28,6 +28,10 @@
     "jest": "^24.9.0"
   },
   "dependencies": {
-    "express": "^4.17.1"
+    "async": "^3.1.0",
+    "express": "^4.17.1",
+    "mysql2": "^1.7.0",
+    "squel": "^5.13.0",
+    "winston": "^3.2.1"
   }
 }
