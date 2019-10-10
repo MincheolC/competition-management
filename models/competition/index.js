@@ -3,31 +3,47 @@ const each = require('async/each');
 const { selectAllRecordsOfTeam } = require('../record/query');
 const { selectAllTeam } = require('../team/query');
 
-function isZeroScore(succesMemberScoresMap) {
-    return succesMemberScoresMap.size < 3;
+function isZeroScore(successMemberIdsSet) {
+    return successMemberIdsSet.size < 3;
+}
+
+function buildSuccessMemberSet(records) {
+    const TWENTY_MINUTES = 1200;
+    const successMemberIds = new Set();
+    records.forEach(({ memberId, runningTime }) => {
+        if (runningTime <= TWENTY_MINUTES) {
+            successMemberIds.add(memberId);
+        }
+    });
+    return successMemberIds;
+}
+
+function filterSuccessMemberRecords(successMemberIdsSet, records) {
+    return records.filter(({ memberId }) => successMemberIdsSet.has(memberId));
 }
 
 function calculateTeamScore(records) {
+    const successMemberRecord = new Map();
     const successMemberScores = new Map();
-    const TWENTY_MINUTES = 1200;
+    const successMemberIdsSet = buildSuccessMemberSet(records);
 
-    records.forEach((record) => {
-        const {
-            memberId, runningTime, sitUpCount, pushUpCount,
-        } = record;
-
-        if (runningTime <= TWENTY_MINUTES) {
-            const previousScore = successMemberScores.get(memberId) || 0;
-            const currentScore = sitUpCount + pushUpCount;
-            if (previousScore < currentScore) {
-                successMemberScores.set(memberId, currentScore);
-            }
-        }
-    });
-
-    if (isZeroScore(successMemberScores)) {
+    if (isZeroScore(successMemberIdsSet)) {
         return 0;
     }
+
+    filterSuccessMemberRecords(successMemberIdsSet, records).forEach((record) => {
+        const {
+            memberId, sitUpCount, pushUpCount,
+        } = record;
+
+        const { sitUp, pushUp } = successMemberRecord.get(memberId) || { sitUp: 0, pushUp: 0 };
+        const highestSitUpCount = sitUpCount > sitUp ? sitUpCount : sitUp;
+        const highestPushUpCount = pushUpCount > pushUp ? pushUpCount : pushUp;
+
+        successMemberRecord.set(memberId, { sitUp: highestSitUpCount, pushUp: highestPushUpCount });
+        successMemberScores.set(memberId, highestSitUpCount + highestPushUpCount);
+    });
+
     return Array.from(successMemberScores.values()).reduce((a, b) => a + b);
 }
 
@@ -36,10 +52,14 @@ function sortByScoreDesc(teamScores) {
 }
 
 function insertGrades(teamScores) {
-    let grade = 1;
+    let grade = 0;
+    let prevTeamScore = Number.MAX_VALUE;
     teamScores.forEach((teamScore) => {
+        if (prevTeamScore > teamScore.score) {
+            grade += 1;
+        }
         teamScore.grade = grade;
-        grade += 1;
+        prevTeamScore = teamScore.score;
     });
 }
 
