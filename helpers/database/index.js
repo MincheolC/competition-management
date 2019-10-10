@@ -3,6 +3,7 @@ const squel = require('squel').useFlavour('mysql');
 const env = require('../utils/env');
 const config = require('../config.json');
 const logger = require('../logger');
+const { assertNotNull } = require('../assert');
 
 let pool;
 
@@ -68,8 +69,18 @@ function paramQueryOne(queryObject, callback) {
     });
 }
 
+function setOrNot(queryObject, name, value, allowNull = true) {
+    assertNotNull(queryObject, 'queryObject');
+    assertNotNull(name, 'name');
+
+    if (value !== undefined && (allowNull || value !== null)) {
+        queryObject.set(name, value);
+    }
+}
+
 module.exports = {
     paramQuery,
     paramQueryOne,
+    setOrNot,
     queryBuilder: squel,
 };

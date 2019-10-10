@@ -58,3 +58,14 @@ describe('selectMembers', () => {
         });
     });
 });
+
+describe('selectTeamAndMember', () => {
+    it('with all props', () => {
+        const teamId = 1;
+        const memberId = 1;
+        query.selectTeamAndMember(teamId, memberId, (error, [{ text, values }]) => {
+            expect(text).toBe('SELECT * FROM team `t` INNER JOIN member `m` ON (t.id = m.teamId) WHERE (t.id = ? and m.id = ?)');
+            expect(values).toEqual([1, 1]);
+        });
+    });
+});

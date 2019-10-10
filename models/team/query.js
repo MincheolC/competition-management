@@ -44,9 +44,22 @@ function selectMembers(teamId, callback) {
     paramQuery(queryObject, callback);
 }
 
+function selectTeamAndMember(teamId, memberId, callback) {
+    assertNumber(teamId, 'teamId');
+    assertNumber(memberId, 'memberId');
+
+    const queryObject = queryBuilder.select()
+        .from('team', 't')
+        .join('member', 'm', 't.id = m.teamId')
+        .where('t.id = ? and m.id = ?', teamId, memberId);
+
+    paramQueryOne(queryObject, callback);
+}
+
 module.exports = {
     selectTeam,
     selectMembers,
+    selectTeamAndMember,
     insertTeam,
     insertMembers,
 };
