@@ -37,9 +37,9 @@ function createRecord(req, res) {
 }
 
 function isNothingToUpdateRecord(body) {
-    const { memberId } = body;
+    const { memberId, round } = body;
     const bodyPropsCount = Object.keys(body).length;
-    return !body || bodyPropsCount < 1 || (bodyPropsCount === 1 && typeof memberId === 'string');
+    return !body || bodyPropsCount < 2 || (bodyPropsCount === 2 && typeof memberId === 'string' && typeof round === 'number');
 }
 
 function updateRecord(req, res) {
