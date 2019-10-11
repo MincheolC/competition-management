@@ -54,7 +54,7 @@ Created team object on success, or error on failure.
 ### Response Example
 ``` json
 {
-  "id": "1a2b3c4d",
+  "id": "1",
   "competitionId": "1",
   "name": "FIFL",
   "city": "Seoul",

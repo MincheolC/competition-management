@@ -6,30 +6,1034 @@
 	},
 	"item": [
 		{
-			"name": "Server heath check",
-			"event": [
+			"name": "Pre-run",
+			"item": [
 				{
-					"listen": "prerequest",
-					"script": {
-						"id": "368a979e-691f-4e1d-b967-cb3662241a54",
-						"exec": [
-							"pm.environment.set(\"api\", \"http://localhost:8081\");"
+					"name": "Server heath check",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "368a979e-691f-4e1d-b967-cb3662241a54",
+								"exec": [
+									"pm.environment.set(\"api\", \"http://localhost:8081\");",
+									"pm.environment.set(\"competitionId\", 1);"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"id": "dd79665b-8563-445a-9352-b5ad1cf4ee79",
+								"exec": [
+									"pm.test(\"response is 200 ok\", () => {",
+									"    pm.response.to.have.status(200); ",
+									"});",
+									"",
+									"pm.test(\"response should be 'Welcome to Competition Management API Server!'\", function () {",
+									"    pm.expect(pm.response.text()).to.eql('Welcome to Competition Management API Server!');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{api}}/",
+							"host": [
+								"{{api}}"
+							],
+							"path": [
+								""
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Register(Create) Team",
+			"item": [
+				{
+					"name": "valid params",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "c3c9c616-1bca-4aa9-91d2-3904bc79e511",
+								"exec": [
+									"pm.test(\"response is 200 ok\", () => {",
+									"    pm.response.to.have.status(200); ",
+									"});",
+									"",
+									"const jsonData = pm.response.json();",
+									"pm.environment.set(\"teamId\", jsonData.id);",
+									"pm.environment.set(\"memberId\", jsonData.members[0].id);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
 						],
-						"type": "text/javascript"
-					}
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"name\": \"FIFL\",\n\t\"city\": \"Seoul\",\n\t\"members\": [\"차민철\", \"홍길동\", \"김지헌\", \"김아라\", \"최준영\"]\n}"
+						},
+						"url": {
+							"raw": "{{api}}/competitions/{{competitionId}}/teams",
+							"host": [
+								"{{api}}"
+							],
+							"path": [
+								"competitions",
+								"{{competitionId}}",
+								"teams"
+							]
+						}
+					},
+					"response": []
 				},
+				{
+					"name": "invalid params (name)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "c3c9c616-1bca-4aa9-91d2-3904bc79e511",
+								"exec": [
+									"pm.test(\"response is 400\", () => {",
+									"    pm.response.to.have.status(400); ",
+									"});",
+									"",
+									"pm.test(\"Body matches string\", function () {",
+									"    pm.expect(pm.response.text()).to.include(\"Missing or invalid param: name\");",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{}"
+						},
+						"url": {
+							"raw": "{{api}}/competitions/{{competitionId}}/teams",
+							"host": [
+								"{{api}}"
+							],
+							"path": [
+								"competitions",
+								"{{competitionId}}",
+								"teams"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "invalid params (city)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "c3c9c616-1bca-4aa9-91d2-3904bc79e511",
+								"exec": [
+									"pm.test(\"response is 400\", () => {",
+									"    pm.response.to.have.status(400); ",
+									"});",
+									"",
+									"pm.test(\"Body matches string\", function () {",
+									"    pm.expect(pm.response.text()).to.include(\"Missing or invalid param: city\");",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"name\": \"FIFL\"\n}"
+						},
+						"url": {
+							"raw": "{{api}}/competitions/{{competitionId}}/teams",
+							"host": [
+								"{{api}}"
+							],
+							"path": [
+								"competitions",
+								"{{competitionId}}",
+								"teams"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "invalid params (members)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "c3c9c616-1bca-4aa9-91d2-3904bc79e511",
+								"exec": [
+									"pm.test(\"response is 400\", () => {",
+									"    pm.response.to.have.status(400); ",
+									"});",
+									"",
+									"pm.test(\"Body matches string\", function () {",
+									"    pm.expect(pm.response.text()).to.include(\"Missing or invalid param: members\");",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"name\": \"FIFL\",\n\t\"city\": \"Seoul\"\n}"
+						},
+						"url": {
+							"raw": "{{api}}/competitions/{{competitionId}}/teams",
+							"host": [
+								"{{api}}"
+							],
+							"path": [
+								"competitions",
+								"{{competitionId}}",
+								"teams"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "invalid params (members length)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "c3c9c616-1bca-4aa9-91d2-3904bc79e511",
+								"exec": [
+									"pm.test(\"response is 400\", () => {",
+									"    pm.response.to.have.status(400); ",
+									"});",
+									"",
+									"pm.test(\"Body matches string\", function () {",
+									"    pm.expect(pm.response.text()).to.include(\"Missing or invalid param: the number of members should be 5\");",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"name\": \"FIFL\",\n\t\"city\": \"Seoul\",\n\t\"members\": []\n}"
+						},
+						"url": {
+							"raw": "{{api}}/competitions/{{competitionId}}/teams",
+							"host": [
+								"{{api}}"
+							],
+							"path": [
+								"competitions",
+								"{{competitionId}}",
+								"teams"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Register(Create) Team member record",
+			"item": [
+				{
+					"name": "valid params",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "c3c9c616-1bca-4aa9-91d2-3904bc79e511",
+								"exec": [
+									"pm.test(\"response is 200 ok\", () => {",
+									"    pm.response.to.have.status(200); ",
+									"});",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"memberId\": \"{{memberId}}\",\n\t\"round\": 1,\n\t\"runningTime\": 1120,\n\t\"sitUpCount\": 57,\n\t\"pushUpCount\": 70\n}"
+						},
+						"url": {
+							"raw": "{{api}}/competitions/{{competitionId}}/teams/{{teamId}}/record",
+							"host": [
+								"{{api}}"
+							],
+							"path": [
+								"competitions",
+								"{{competitionId}}",
+								"teams",
+								"{{teamId}}",
+								"record"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "invalid params (memberId)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "c3c9c616-1bca-4aa9-91d2-3904bc79e511",
+								"exec": [
+									"pm.test(\"response is 400 ok\", () => {",
+									"    pm.response.to.have.status(400); ",
+									"});",
+									"",
+									"pm.test(\"Body matches string\", function () {",
+									"    pm.expect(pm.response.text()).to.include(\"Missing or invalid param: memberId\");",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"round\": 1,\n\t\"runningTime\": 1120,\n\t\"sitUpCount\": 57,\n\t\"pushUpCount\": 70\n}"
+						},
+						"url": {
+							"raw": "{{api}}/competitions/{{competitionId}}/teams/{{teamId}}/record",
+							"host": [
+								"{{api}}"
+							],
+							"path": [
+								"competitions",
+								"{{competitionId}}",
+								"teams",
+								"{{teamId}}",
+								"record"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "invalid params (round)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "c3c9c616-1bca-4aa9-91d2-3904bc79e511",
+								"exec": [
+									"pm.test(\"response is 400 ok\", () => {",
+									"    pm.response.to.have.status(400); ",
+									"});",
+									"",
+									"pm.test(\"Body matches string\", function () {",
+									"    pm.expect(pm.response.text()).to.include(\"Missing or invalid param: round\");",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"memberId\": \"{{memberId}}\",\n\t\"runningTime\": 1120,\n\t\"sitUpCount\": 57,\n\t\"pushUpCount\": 70\n}"
+						},
+						"url": {
+							"raw": "{{api}}/competitions/{{competitionId}}/teams/{{teamId}}/record",
+							"host": [
+								"{{api}}"
+							],
+							"path": [
+								"competitions",
+								"{{competitionId}}",
+								"teams",
+								"{{teamId}}",
+								"record"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "invalid params (runningTime)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "c3c9c616-1bca-4aa9-91d2-3904bc79e511",
+								"exec": [
+									"pm.test(\"response is 400 ok\", () => {",
+									"    pm.response.to.have.status(400); ",
+									"});",
+									"",
+									"pm.test(\"Body matches string\", function () {",
+									"    pm.expect(pm.response.text()).to.include(\"Missing or invalid param: runningTime\");",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"memberId\": \"{{memberId}}\",\n\t\"round\": 1,\n\t\"sitUpCount\": 57,\n\t\"pushUpCount\": 70\n}"
+						},
+						"url": {
+							"raw": "{{api}}/competitions/{{competitionId}}/teams/{{teamId}}/record",
+							"host": [
+								"{{api}}"
+							],
+							"path": [
+								"competitions",
+								"{{competitionId}}",
+								"teams",
+								"{{teamId}}",
+								"record"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "invalid params (sitUpCount)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "c3c9c616-1bca-4aa9-91d2-3904bc79e511",
+								"exec": [
+									"pm.test(\"response is 400 ok\", () => {",
+									"    pm.response.to.have.status(400); ",
+									"});",
+									"",
+									"pm.test(\"Body matches string\", function () {",
+									"    pm.expect(pm.response.text()).to.include(\"Missing or invalid param: sitUpCount\");",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"memberId\": \"{{memberId}}\",\n\t\"round\": 1,\n\t\"runningTime\": 1120,\n\t\"pushUpCount\": 70\n}"
+						},
+						"url": {
+							"raw": "{{api}}/competitions/{{competitionId}}/teams/{{teamId}}/record",
+							"host": [
+								"{{api}}"
+							],
+							"path": [
+								"competitions",
+								"{{competitionId}}",
+								"teams",
+								"{{teamId}}",
+								"record"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "invalid params (pushUpCount)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "c3c9c616-1bca-4aa9-91d2-3904bc79e511",
+								"exec": [
+									"pm.test(\"response is 400 ok\", () => {",
+									"    pm.response.to.have.status(400); ",
+									"});",
+									"",
+									"pm.test(\"Body matches string\", function () {",
+									"    pm.expect(pm.response.text()).to.include(\"Missing or invalid param: pushUpCount\");",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"memberId\": \"{{memberId}}\",\n\t\"round\": 1,\n\t\"runningTime\": 1120,\n\t\"sitUpCount\": 57\n}"
+						},
+						"url": {
+							"raw": "{{api}}/competitions/{{competitionId}}/teams/{{teamId}}/record",
+							"host": [
+								"{{api}}"
+							],
+							"path": [
+								"competitions",
+								"{{competitionId}}",
+								"teams",
+								"{{teamId}}",
+								"record"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "invalid params (teamId)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "c3c9c616-1bca-4aa9-91d2-3904bc79e511",
+								"exec": [
+									"pm.test(\"response is 400 ok\", () => {",
+									"    pm.response.to.have.status(400); ",
+									"});",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{}"
+						},
+						"url": {
+							"raw": "{{api}}/competitions/{{competitionId}}/teams/999/record",
+							"host": [
+								"{{api}}"
+							],
+							"path": [
+								"competitions",
+								"{{competitionId}}",
+								"teams",
+								"999",
+								"record"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Update Team member record",
+			"item": [
+				{
+					"name": "valid params (all props)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "c3c9c616-1bca-4aa9-91d2-3904bc79e511",
+								"exec": [
+									"pm.test(\"response is 200 ok\", () => {",
+									"    pm.response.to.have.status(200); ",
+									"});",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"memberId\": \"{{memberId}}\",\n\t\"round\": 1,\n\t\"runningTime\": 1120,\n\t\"sitUpCount\": 57,\n\t\"pushUpCount\": 90\n}"
+						},
+						"url": {
+							"raw": "{{api}}/competitions/{{competitionId}}/teams/{{teamId}}/record",
+							"host": [
+								"{{api}}"
+							],
+							"path": [
+								"competitions",
+								"{{competitionId}}",
+								"teams",
+								"{{teamId}}",
+								"record"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "valid params (runningTime)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "c3c9c616-1bca-4aa9-91d2-3904bc79e511",
+								"exec": [
+									"pm.test(\"response is 200\", () => {",
+									"    pm.response.to.have.status(200); ",
+									"});",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"memberId\": \"{{memberId}}\",\n\t\"round\": 1,\n\t\"runningTime\": 1150\n}"
+						},
+						"url": {
+							"raw": "{{api}}/competitions/{{competitionId}}/teams/{{teamId}}/record",
+							"host": [
+								"{{api}}"
+							],
+							"path": [
+								"competitions",
+								"{{competitionId}}",
+								"teams",
+								"{{teamId}}",
+								"record"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "valid params (empty body)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "c3c9c616-1bca-4aa9-91d2-3904bc79e511",
+								"exec": [
+									"pm.test(\"response is 200 ok\", () => {",
+									"    pm.response.to.have.status(200); ",
+									"});",
+									"",
+									"pm.test(\"Body matches string\", function () {",
+									"    pm.expect(pm.response.text()).to.include(\"Nothing to update\");",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{}"
+						},
+						"url": {
+							"raw": "{{api}}/competitions/{{competitionId}}/teams/{{teamId}}/record",
+							"host": [
+								"{{api}}"
+							],
+							"path": [
+								"competitions",
+								"{{competitionId}}",
+								"teams",
+								"{{teamId}}",
+								"record"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "valid params (only memberId)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "c3c9c616-1bca-4aa9-91d2-3904bc79e511",
+								"exec": [
+									"pm.test(\"response is 200 ok\", () => {",
+									"    pm.response.to.have.status(200); ",
+									"});",
+									"",
+									"pm.test(\"Body matches string\", function () {",
+									"    pm.expect(pm.response.text()).to.include(\"Nothing to update\");",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"memberId\": \"{{memberId}}\"\n}"
+						},
+						"url": {
+							"raw": "{{api}}/competitions/{{competitionId}}/teams/{{teamId}}/record",
+							"host": [
+								"{{api}}"
+							],
+							"path": [
+								"competitions",
+								"{{competitionId}}",
+								"teams",
+								"{{teamId}}",
+								"record"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "valid params (without body)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "c3c9c616-1bca-4aa9-91d2-3904bc79e511",
+								"exec": [
+									"pm.test(\"response is 200 ok\", () => {",
+									"    pm.response.to.have.status(200); ",
+									"});",
+									"",
+									"pm.test(\"Body matches string\", function () {",
+									"    pm.expect(pm.response.text()).to.include(\"Nothing to update\");",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{api}}/competitions/{{competitionId}}/teams/{{teamId}}/record",
+							"host": [
+								"{{api}}"
+							],
+							"path": [
+								"competitions",
+								"{{competitionId}}",
+								"teams",
+								"{{teamId}}",
+								"record"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "invalid params (runningTime)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "c3c9c616-1bca-4aa9-91d2-3904bc79e511",
+								"exec": [
+									"pm.test(\"response is 400\", () => {",
+									"    pm.response.to.have.status(400); ",
+									"});",
+									"",
+									"pm.test(\"Body matches string\", function () {",
+									"    pm.expect(pm.response.text()).to.include(\"Missing or invalid param: runningTime\");",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"memberId\": \"{{memberId}}\",\n\t\"runningTime\": \"1120\"\n}"
+						},
+						"url": {
+							"raw": "{{api}}/competitions/{{competitionId}}/teams/{{teamId}}/record",
+							"host": [
+								"{{api}}"
+							],
+							"path": [
+								"competitions",
+								"{{competitionId}}",
+								"teams",
+								"{{teamId}}",
+								"record"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "invalid params (no record)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "c3c9c616-1bca-4aa9-91d2-3904bc79e511",
+								"exec": [
+									"pm.test(\"response is 400\", () => {",
+									"    pm.response.to.have.status(400); ",
+									"});",
+									"",
+									"pm.test(\"Body matches string\", function () {",
+									"    pm.expect(pm.response.text()).to.include(\"Missing or invalid param: no record to update\");",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"memberId\": \"{{memberId}}\",\n\t\"round\": 999,\n\t\"runningTime\": 1300\n}"
+						},
+						"url": {
+							"raw": "{{api}}/competitions/{{competitionId}}/teams/{{teamId}}/record",
+							"host": [
+								"{{api}}"
+							],
+							"path": [
+								"competitions",
+								"{{competitionId}}",
+								"teams",
+								"{{teamId}}",
+								"record"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "invalid params (teamId)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "c3c9c616-1bca-4aa9-91d2-3904bc79e511",
+								"exec": [
+									"pm.test(\"response is 400 ok\", () => {",
+									"    pm.response.to.have.status(400); ",
+									"});",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"memberId\": \"{{memberId}}\",\n\t\"round\": 1,\n\t\"runningTime\": 1120,\n\t\"sitUpCount\": 57,\n\t\"pushUpCount\": 70\n}"
+						},
+						"url": {
+							"raw": "{{api}}/competitions/{{competitionId}}/teams/999/record",
+							"host": [
+								"{{api}}"
+							],
+							"path": [
+								"competitions",
+								"{{competitionId}}",
+								"teams",
+								"999",
+								"record"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Get competition result",
+			"event": [
 				{
 					"listen": "test",
 					"script": {
-						"id": "dd79665b-8563-445a-9352-b5ad1cf4ee79",
+						"id": "c3c9c616-1bca-4aa9-91d2-3904bc79e511",
 						"exec": [
-							"pm.test(\"response is 200 ok\", () => {",
+							"pm.test(\"response is 200\", () => {",
 							"    pm.response.to.have.status(200); ",
 							"});",
-							"",
-							"pm.test(\"response should be 'Welcome to Competition Management API Server!'\", function () {",
-							"    pm.expect(pm.response.text()).to.eql('Welcome to Competition Management API Server!');",
-							"});"
+							""
 						],
 						"type": "text/javascript"
 					}
@@ -37,14 +1041,22 @@
 			],
 			"request": {
 				"method": "GET",
-				"header": [],
+				"header": [
+					{
+						"key": "Content-Type",
+						"type": "text",
+						"value": "application/json"
+					}
+				],
 				"url": {
-					"raw": "{{api}}/",
+					"raw": "{{api}}/competitions/1/result",
 					"host": [
 						"{{api}}"
 					],
 					"path": [
-						""
+						"competitions",
+						"1",
+						"result"
 					]
 				}
 			},

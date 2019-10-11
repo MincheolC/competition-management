@@ -1,9 +1,11 @@
 const express = require('express');
+const router = require('./routes');
+const logger = require('./helpers/logger');
 
 const app = express();
+const PORT = 8081;
 
-app.get('/', (req, res) => {
-    res.send('Welcome to Competition Management API Server!');
-});
+app.use(express.json());
+app.use('/', router);
 
-app.listen(8081, () => console.log('Competition Management API Server is listening on port 8081!'));
+app.listen(PORT, () => logger.info(`Competition Management API Server is listening on port ${PORT}!`));
