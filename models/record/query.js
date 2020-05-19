@@ -1,65 +1,102 @@
 const {
-    queryBuilder, paramQuery, paramQueryOne, setOrNot,
+    sequelize, DataTypes, paramQuery, paramQueryOne, setOrNot,
 } = require('../../helpers/database');
 const { assertNumber } = require('../../helpers/assert');
 
-function insertRecord(params, callback) {
-    const {
-        memberId, round, runningTime, sitUpCount, pushUpCount,
-    } = params;
-    assertNumber(memberId, 'memberId');
+const Record = sequelize.define('record', {
+    id: {
+        type: DataTypes.INTEGER,
+        autoIncrement: true,
+        primaryKey: true,
+        allowNull: false,
+    },
+    memberId: {
+        type: DataTypes.INTEGER,
+        primaryKey: true,
+        allowNull: false,
+    },
+    round: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+    },
+    runningTime: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+    },
+    sitUpCount: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+    },
+    pushUpCount: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+    },
+});
 
-    const queryObject = queryBuilder.insert()
-        .into('record')
-        .set('memberId', memberId)
-        .set('round', round)
-        .set('runningTime', runningTime)
-        .set('sitUpCount', sitUpCount)
-        .set('pushUpCount', pushUpCount);
+// function insertRecord(params, callback) {
+//     const {
+//         memberId, round, runningTime, sitUpCount, pushUpCount,
+//     } = params;
+//     assertNumber(memberId, 'memberId');
 
-    paramQuery(queryObject, callback);
-}
+//     const queryObject = queryBuilder.insert()
+//         .into('record')
+//         .set('memberId', memberId)
+//         .set('round', round)
+//         .set('runningTime', runningTime)
+//         .set('sitUpCount', sitUpCount)
+//         .set('pushUpCount', pushUpCount);
 
-function updateRecord(params, callback) {
-    const {
-        memberId, round, runningTime, sitUpCount, pushUpCount,
-    } = params;
-    assertNumber(memberId, 'memberId');
-    assertNumber(round, 'round');
+//     paramQuery(queryObject, callback);
+// }
 
-    const queryObject = queryBuilder.update()
-        .table('record')
-        .where('memberId = ? and round = ?', memberId, round);
+// function updateRecord(params, callback) {
+//     const {
+//         memberId, round, runningTime, sitUpCount, pushUpCount,
+//     } = params;
+//     assertNumber(memberId, 'memberId');
+//     assertNumber(round, 'round');
 
-    setOrNot(queryObject, 'runningTime', runningTime);
-    setOrNot(queryObject, 'sitUpCount', sitUpCount);
-    setOrNot(queryObject, 'pushUpCount', pushUpCount);
+//     const queryObject = queryBuilder.update()
+//         .table('record')
+//         .where('memberId = ? and round = ?', memberId, round);
 
-    paramQuery(queryObject, callback);
-}
+//     setOrNot(queryObject, 'runningTime', runningTime);
+//     setOrNot(queryObject, 'sitUpCount', sitUpCount);
+//     setOrNot(queryObject, 'pushUpCount', pushUpCount);
 
-function selectRecord(memberId, round, callback) {
-    assertNumber(memberId, 'memberId');
-    assertNumber(round, 'round');
+//     paramQuery(queryObject, callback);
+// }
 
-    const queryObject = queryBuilder.select()
-        .from('record')
-        .where('memberId = ? and round = ?', memberId, round);
+// function selectRecord(memberId, round, callback) {
+//     assertNumber(memberId, 'memberId');
+//     assertNumber(round, 'round');
 
-    paramQueryOne(queryObject, callback);
-}
+//     const queryObject = queryBuilder.select()
+//         .from('record')
+//         .where('memberId = ? and round = ?', memberId, round);
 
-function selectAllRecordsOfTeam(teamId, callback) {
-    assertNumber(teamId, 'teamId');
+//     paramQueryOne(queryObject, callback);
+// }
 
-    const queryObject = queryBuilder.select()
-        .from('member', 'm')
-        .join('record', 'r', 'm.id = r.memberId')
-        .where('m.teamId = ?', teamId)
-        .field('r.*');
+// function selectRecords(memberId, round, callback) {
+//     assertNumber(memberId, 'memberId');
+//     assertNumber(round, 'round');
 
-    paramQuery(queryObject, callback);
-}
+
+// }
+
+// function selectAllRecordsOfTeam(teamId, callback) {
+//     assertNumber(teamId, 'teamId');
+
+//     const queryObject = queryBuilder.select()
+//         .from('member', 'm')
+//         .join('record', 'r', 'm.id = r.memberId')
+//         .where('m.teamId = ?', teamId)
+//         .field('r.*');
+
+//     paramQuery(queryObject, callback);
+// }
 
 module.exports = {
     insertRecord,

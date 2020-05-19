@@ -1,31 +1,34 @@
-const mysql = require('mysql2');
-const squel = require('squel').useFlavour('mysql');
+const { Sequelize, DataTypes, Model } = require('sequelize');
 const env = require('../utils/env');
 const config = require('../config.json');
 const logger = require('../logger');
 const { assertNotNull } = require('../assert');
 
-let pool;
+const {
+    username, database, host, password,
+} = config[env.get()];
+const sequelize = new Sequelize(database, username, password, {
+    host,
+    dialect: 'mysql',
+    pool: {
+        max: 3,
+        min: 0,
+        acquire: 30000,
+        idle: 10000,
+    },
+    define: {
+        freezeTableName: true,
+    },
+});
 
-function getPool() {
-    if (pool) {
-        return pool;
-    }
-
-    const dbConfig = config[env.get()];
-    const connectionLimit = 3;
-
-    pool = mysql.createPool({
-        host: dbConfig.host,
-        user: dbConfig.username,
-        password: dbConfig.password,
-        database: dbConfig.database,
-        connectionLimit,
-        decimalNumbers: true,
+sequelize
+    .authenticate()
+    .then(() => {
+        logger.info('Connection has been established successfully.');
+    })
+    .catch((err) => {
+        logger.error('Unable to connect to the database:', err);
     });
-
-    return pool;
-}
 
 function checkMultiRows(rows, queryString) {
     const isSingleRow = rows.length < 2;
@@ -43,7 +46,7 @@ function paramQueryTransaction(queryObject, conn, callback) {
     const { text, values } = queryObject.toParam();
     logger.debug(text, values);
 
-    const connection = conn || getPool();
+    const connection = conn || sequelize;
     connection.query(text, values, (error, results /* ignore other params */) => {
         if (error) {
             if (!conn) {
@@ -82,5 +85,7 @@ module.exports = {
     paramQuery,
     paramQueryOne,
     setOrNot,
-    queryBuilder: squel,
+    sequelize,
+    DataTypes,
+    Model,
 };
