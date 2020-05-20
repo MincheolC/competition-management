@@ -1,6 +1,5 @@
-const waterfall = require('async/waterfall');
-const { selectTeamAndMember } = require('../team/query');
-const { insertRecord, selectRecord, updateRecord } = require('./query');
+const { RecordModel } = require('./model');
+const { MemberModel } = require('../member/model');
 
 function toRecordObject(competitionId, teamId, props) {
     const {
@@ -18,21 +17,23 @@ function toRecordObject(competitionId, teamId, props) {
     };
 }
 
-function validateTeamMember(teamId, memberId, callback) {
-    selectTeamAndMember(teamId, memberId, (err, result) => {
-        if (err) {
-            return callback(err);
+function filterNull(obj) {
+    const newObj = {};
+    const keys = Object.keys(obj);
+    keys.forEach((key) => {
+        if (obj[key]) {
+            newObj[key] = obj[key];
         }
-
-        if (!result) {
-            const error = {
-                message: `memberId ${memberId} is not belong to teamId ${teamId}`,
-            };
-            return callback(error);
-        }
-
-        return callback(null);
     });
+    return newObj;
+}
+
+async function validateTeamMember(teamId, memberId) {
+    const member = await MemberModel.getOne({ teamId, id: memberId });
+    if (!member) {
+        throw new Error(`memberId ${memberId} is not belong to teamId ${teamId}`);
+    }
+    return null;
 }
 
 class Record {
@@ -46,47 +47,45 @@ class Record {
         this.pushUpCount = props.pushUpCount;
     }
 
-    create(callback) {
-        waterfall([
-            (done) => validateTeamMember(this.teamId, this.memberId, done),
-            (done) => {
-                insertRecord(this, (err) => {
-                    if (err) {
-                        return done(err);
-                    }
-                    return done(null);
-                });
-            },
-            (done) => selectRecord(this.memberId, this.round, done),
-        ], (err, record) => {
-            if (err) {
-                return callback(err);
-            }
-            return callback(null, toRecordObject(this.competitionId, this.teamId, record));
-        });
+    async create(callback) {
+        try {
+            const {
+                competitionId, teamId, memberId, round, runningTime, sitUpCount, pushUpCount,
+            } = this;
+
+            await validateTeamMember(teamId, memberId);
+            await RecordModel.setOne({
+                memberId, round, runningTime, sitUpCount, pushUpCount,
+            });
+            const record = await RecordModel.getOne({ memberId, round });
+            return callback(null,
+                toRecordObject(competitionId, teamId, record));
+        } catch (err) {
+            return callback(err);
+        }
     }
 
-    update(callback) {
-        waterfall([
-            (done) => validateTeamMember(this.teamId, this.memberId, done),
-            (done) => {
-                updateRecord(this, (err) => {
-                    if (err) {
-                        return done(err);
-                    }
-                    return done(null);
-                });
-            },
-            (done) => selectRecord(this.memberId, this.round, done),
-        ], (err, record) => {
-            if (err) {
-                return callback(err);
+    async update(callback) {
+        try {
+            const {
+                competitionId, teamId, memberId, round, runningTime, sitUpCount, pushUpCount,
+            } = this;
+            const updateObj = filterNull({ runningTime, sitUpCount, pushUpCount });
+
+            await validateTeamMember(teamId, memberId);
+            const [updated] = await RecordModel.updateOne(updateObj,
+                { where: { memberId, round } });
+
+            if (!updated) {
+                throw new Error('no record to update');
             }
-            if (!record) {
-                return callback({ message: 'no record to update' });
-            }
-            return callback(null, toRecordObject(this.competitionId, this.teamId, record));
-        });
+
+            const record = await RecordModel.getOne({ memberId, round });
+            return callback(null,
+                toRecordObject(competitionId, teamId, record));
+        } catch (err) {
+            return callback(err);
+        }
     }
 }
 

@@ -1,6 +1,5 @@
-const waterfall = require('async/waterfall');
-const { insertTeam, selectTeam } = require('./query');
-const { Member } = require('./member');
+const { TeamModel } = require('./model');
+const { Member } = require('../member');
 
 function toTeamObject(props) {
     return {
@@ -21,41 +20,24 @@ class Team {
         this.teamId = props.teamId;
     }
 
-    create(callback) {
-        waterfall([
-            (done) => {
-                insertTeam(this.competitionId, this, (err) => {
-                    if (err) {
-                        return done(err);
-                    }
-                    return done(null);
-                });
-            },
-            (done) => {
-                selectTeam(this.competitionId, this.name, (err, { id }) => {
-                    if (err) {
-                        return done(err);
-                    }
-                    this.teamId = id;
-                    return done(null);
-                });
-            },
-            (done) => {
-                const member = new Member(this);
-                member.create((err, members) => {
-                    if (err) {
-                        return done(err);
-                    }
-                    this.membersWithId = members;
-                    return done(null);
-                });
-            },
-        ], (error) => {
-            if (error) {
-                return callback(error);
-            }
-            return callback(null, toTeamObject(this));
-        });
+    async create(callback) {
+        try {
+            const { competitionId, name, city } = this;
+            const team = await TeamModel.setOne({ competitionId, name, city });
+            const { id } = team.dataValues;
+            this.teamId = id;
+
+            const member = new Member(this);
+            return member.create((err, members) => {
+                if (err) {
+                    return callback(err);
+                }
+                this.membersWithId = members;
+                return callback(null, toTeamObject(this));
+            });
+        } catch (err) {
+            return callback(err);
+        }
     }
 }
 

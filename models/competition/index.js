@@ -1,7 +1,8 @@
 const each = require('async/each');
 
-const { selectAllRecordsOfTeam } = require('../record/query');
-const { selectAllTeam } = require('../team/query');
+const { TeamModel } = require('../team/model');
+const { MemberModel } = require('../member/model');
+const { RecordModel } = require('../record/model');
 
 function isZeroScore(successMemberIdsSet) {
     return successMemberIdsSet.size < 3;
@@ -82,20 +83,18 @@ function toResultObject(competitionId, allTeamRecords) {
 }
 
 function calculateResult(competitionId, teams, callback) {
+    MemberModel.hasMany(RecordModel, { foreignKey: 'memberId' });
+    RecordModel.belongsTo(MemberModel, { foreignKey: 'memberId' });
+
     const allTeamRecords = [];
     each(teams, (team, done) => {
         const { id: teamId, name: teamName } = team;
-        selectAllRecordsOfTeam(teamId, (error, records) => {
-            if (error) {
-                return done(error);
-            }
-            allTeamRecords.push({
-                teamId,
-                teamName,
-                records,
-            });
-            return done(null);
-        });
+        RecordModel.get({}, [{ model: MemberModel, where: { teamId } }])
+            .then((records) => {
+                allTeamRecords.push({ teamId, teamName, records });
+                done(null);
+            })
+            .catch((err) => done(err));
     }, (eachError) => callback(eachError, toResultObject(competitionId, allTeamRecords)));
 }
 
@@ -104,13 +103,14 @@ class Competition {
         this.competitionId = parseInt(competitionId, 10);
     }
 
-    getResult(callback) {
-        selectAllTeam(this.competitionId, (error, teams) => {
-            if (error) {
-                return callback(error);
-            }
-            return calculateResult(this.competitionId, teams, callback);
-        });
+    async getResult(callback) {
+        const { competitionId } = this;
+        try {
+            const teams = await TeamModel.get({ competitionId });
+            return calculateResult(competitionId, teams, callback);
+        } catch (err) {
+            return callback(err);
+        }
     }
 }
 
